@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
   created: { type: String, required: false },
+  class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
   shlucha:String,
   maslul:String,
   nameMishpacha: { type: String, required: true },

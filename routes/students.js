@@ -54,6 +54,17 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+//מחיקת כל הנתונים
+router.delete('/deleteAll', async (req, res) => {
+  try {
+    const result = await Student.deleteMany({});
+    console.log('Delete result:', result);
+    res.json({ message: 'All students deleted successfully', count: result.deletedCount });
+  } catch (error) {
+    console.error('Error deleting all students:', error);
+    res.status(500).json({ message: 'שגיאה בשרת', error: error.message });
+  }
+});
 //מחיקת תלמיד לפי id
 router.delete('/:id', async (req, res) => {
   try {
@@ -66,7 +77,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'שגיאה בשרת', error: error.message });
   }
 });
-module.exports = router;
 // העלאת קובץ excle
 router.post('/bulk', async (req, res) => {
   try {
@@ -78,13 +88,5 @@ router.post('/bulk', async (req, res) => {
     res.status(500).json({ message: 'Error uploading data', error: error.message });
   }
 });
-//מחיקת כל הנתונים
-router.delete('/all', async (req, res) => {
-  try {
-    const result = await Student.deleteMany({});
-    res.json({ message: 'All students deleted successfully', count: result.deletedCount });
-  } catch (error) {
-    console.error('Error deleting all students:', error);
-    res.status(500).json({ message: 'Error deleting data', error: error.message });
-  }
-});
+
+module.exports = router;
