@@ -15,16 +15,25 @@ router.get('/', async (req, res) => {
 });
 
 // הוספת תלמיד חדש
-router.post('/', async (req, res) => {
+router.post('/students', async (req, res) => {
   try {
-    console.log('Attempting to save student:', req.body);
     const student = new Student(req.body);
-    const newStudent = await student.save();
-    console.log('Student saved successfully:', newStudent);
-    res.status(201).json(newStudent);
+    const savedStudent = await student.save();
+    console.log('Saved student:', savedStudent); // הוסף את זה
+
+    if (req.body.class) {
+      const updatedClass = await Class.findByIdAndUpdate(
+        req.body.class,
+        { $push: { students: savedStudent._id } },
+        { new: true }
+      );
+      console.log('Updated class:', updatedClass); // הוסף את זה
+    }
+
+    res.status(201).json(savedStudent);
   } catch (err) {
-    console.error('Error saving student:', err);
-    res.status(400).json({ message: err.message });
+    console.error('Error creating student:', err); // שנה את זה
+    res.status(400).json({ message: err.message, stack: err.stack });
   }
 });
 //עדכון פרטי תלמיד

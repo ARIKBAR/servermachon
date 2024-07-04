@@ -14,15 +14,21 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+
 // קבלת כל הכיתות
 router.get('/', async (req, res) => {
   try {
-    const classes = await Class.find();
+    const classes = await Class.find().populate('students');
+    console.log('Classes fetched:', classes); // הוסף את זה
     res.json(classes);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching classes:', error); // שנה את זה
+    res.status(500).json({ message: error.message, stack: error.stack });
   }
 });
+
+
 
 // קבלת כיתה ספציפית
 router.get('/:id', async (req, res) => {
@@ -64,6 +70,29 @@ router.post('/:classId/students/:studentId', async (req, res) => {
     res.json({ message: 'תלמיד נוסף לכיתה בהצלחה' });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+router.delete('/deleteAll', async (req, res) => {
+  try {
+    const result = await Class.deleteMany({});
+    console.log('Delete result:', result);
+    res.json({ message: 'All Class deleted successfully', count: result.deletedCount });
+  } catch (error) {
+    console.error('Error deleting all Class:', error);
+    res.status(500).json({ message: 'שגיאה בשרת', error: error.message });
+  }
+});
+
+//מחיקת כיתה לפי id
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedClass = await Class.findByIdAndDelete(req.params.id);
+    if (!deletedClass) {
+      return res.status(404).json({ message: 'כיתה יד לא נמצא' });
+    }
+    res.json({ message: 'כיתה נמחק בהצלחה', deletedClass });
+  } catch (error) {
+    res.status(500).json({ message: 'שגיאה בשרת', error: error.message });
   }
 });
 

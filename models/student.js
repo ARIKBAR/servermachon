@@ -17,7 +17,6 @@ const studentSchema = new mongoose.Schema({
   telphon:String,
   email:String,
   statusp:String,
-  classes:String,
   paymentMethod: String,
   paymentesder:String,
   creditCardNumber: String,
