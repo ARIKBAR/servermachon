@@ -33,8 +33,7 @@ router.get('/', async (req, res) => {
     // classes.forEach(item=>{
     //   item.countStudents = students.find(st=>st._id.class.toString() == item._id).count
     // })
-    console.log(students)
-    console.log(classes)
+    
     res.json(classes);
   } catch (error) {
     console.error('Error fetching classes:', error);
