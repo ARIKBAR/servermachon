@@ -23,11 +23,8 @@ const studentSchema = new mongoose.Schema({
   creditCardExpiry: String,
   creditCardCVV: String,
   notes: String,
-  courses: [{
-    name: String,
-    hours: String,
-    grade: String
-  }]
+  fileLink: { type: String },
+  fileName: { type: String }
 });
 
 module.exports = mongoose.model('Student', studentSchema);
