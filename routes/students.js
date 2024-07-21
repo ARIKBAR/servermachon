@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+
 const mongoose = require ('mongoose')
 const { ObjectId} = mongoose.Types;
 
@@ -7,6 +10,16 @@ const router = express.Router();
 const Student = require('../models/student'); // וודא שהנתיב נכון
 router.use(cors())
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/') // הגדר את התיקייה שבה יישמרו הקבצים
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)) // שם הקובץ יהיה הזמן הנוכחי + הסיומת המקורית
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // קבלת כל התלמידים
 router.get('/', async (req, res) => {
@@ -30,7 +43,7 @@ router.get('/byClass/:classID', async (req, res) => {
 });
 
 // הוספת תלמיד חדש
-// router.post('/students', async (req, res) => {
+// router.post('/', async (req, res) => {
 //   try {
 //     const student = new Student(req.body);
 //     const savedStudent = await student.save();
@@ -51,6 +64,35 @@ router.get('/byClass/:classID', async (req, res) => {
 //     res.status(400).json({ message: err.message, stack: err.stack });
 //   }
 // });
+router.post('/', upload.single('file'), async (req, res) => {
+  try {
+    const studentData = req.body;
+    
+    // אם יש קובץ, הוסף את הנתיב ושם הקובץ לנתוני התלמיד
+    if (req.file) {
+      studentData.fileLink = req.file.path;
+      studentData.fileName = req.file.originalname;
+    }
+
+    const student = new Student(studentData);
+    const savedStudent = await student.save();
+    console.log('Saved student:', savedStudent);
+
+    if (req.body.class) {
+      const updatedClass = await Class.findByIdAndUpdate(
+        req.body.class,
+        { $push: { students: savedStudent._id } },
+        { new: true }
+      );
+      console.log('Updated class:', updatedClass);
+    }
+
+    res.status(201).json(savedStudent);
+  } catch (err) {
+    console.error('Error creating student:', err);
+    res.status(400).json({ message: err.message, stack: err.stack });
+  }
+});
 
 
 
